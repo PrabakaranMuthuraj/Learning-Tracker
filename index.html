@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack Learning Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            background: #4ade80;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 20px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .day-selector select {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .task-section {
+            margin-bottom: 25px;
+        }
+
+        .task-section h3 {
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .task-item:active {
+            transform: scale(0.98);
+        }
+
+        .task-item.completed {
+            background: #d1fae5;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .task-item.completed .checkbox {
+            background: #667eea;
+        }
+
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            display: none;
+        }
+
+        .task-item.completed .checkbox::after {
+            display: block;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .time-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 10px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .week-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .week-card:active {
+            transform: scale(0.98);
+            border-color: #667eea;
+        }
+
+        .week-card h4 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .week-card p {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .week-progress {
+            background: #e9ecef;
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .week-progress-fill {
+            background: #4ade80;
+            height: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .emoji {
+            font-size: 20px;
+        }
+
+        .reflection-box {
+            background: #fff9db;
+            border-left: 4px solid #fbbf24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .reflection-box h4 {
+            font-size: 14px;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Full-Stack Journey</h1>
+            <p id="currentDay">Day 1 of 120</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('today')">Today</button>
+            <button class="tab" onclick="showTab('week')">This Week</button>
+            <button class="tab" onclick="showTab('progress')">Progress</button>
+        </div>
+
+        <div class="content">
+            <!-- TODAY TAB -->
+            <div id="todayTab">
+                <div class="day-selector">
+                    <select id="monthSelect" onchange="updateDay()">
+                        <option value="1">Month 1</option>
+                        <option value="2">Month 2</option>
+                        <option value="3">Month 3</option>
+                        <option value="4">Month 4</option>
+                    </select>
+                    <select id="daySelect" onchange="updateDay()">
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+
+                <div class="stat-card">
+                    <h2 id="dayTitle">Day 1: Environment Setup</h2>
+                    <p id="dayGoal">Set up your complete development environment and create first Spring Boot project</p>
+                </div>
+
+                <div class="task-section">
+                    <h3><span class="emoji">📚</span> Learning Tasks</h3>
+                    <div id="learningTasks">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+
+                <div class="task-section">
+                    <h3><span class="emoji">💻</span> Coding Tasks</h3>
+                    <div id="codingTasks">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+
+                <div class="task-section">
+                    <h3><span class="emoji">🧪</span> Testing & Commit</h3>
+                    <div id="testingTasks">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+
+                <div class="reflection-box">
+                    <h4>📝 Daily Reflection</h4>
+                    <textarea class="note-input" id="reflection" placeholder="What did you learn today? What was challenging?"></textarea>
+                </div>
+
+                <button class="btn" onclick="completeDay()">✅ Mark Day Complete</button>
+            </div>
+
+            <!-- WEEK TAB -->
+            <div id="weekTab" class="hidden">
+                <div id="weekCards">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+
+            <!-- PROGRESS TAB -->
+            <div id="progressTab" class="hidden">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="number" id="daysCompleted">0</div>
+                        <div class="label">Days Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="daysRemaining">120</div>
+                        <div class="label">Days Left</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="tasksCompleted">0</div>
+                        <div class="label">Tasks Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="currentStreak">0</div>
+                        <div class="label">Day Streak</div>
+                    </div>
+                </div>
+
+                <div class="task-section">
+                    <h3><span class="emoji">📊</span> Month Progress</h3>
+                    <div class="week-card">
+                        <h4>Month 1: Spring Boot Fundamentals</h4>
+                        <div class="week-progress">
+                            <div class="week-progress-fill" id="month1Progress" style="width: 0%"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px;" id="month1Text">0/30 days</p>
+                    </div>
+                    <div class="week-card">
+                        <h4>Month 2: Advanced Backend</h4>
+                        <div class="week-progress">
+                            <div class="week-progress-fill" id="month2Progress" style="width: 0%"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px;" id="month2Text">0/30 days</p>
+                    </div>
+                    <div class="week-card">
+                        <h4>Month 3: React & Full-Stack</h4>
+                        <div class="week-progress">
+                            <div class="week-progress-fill" id="month3Progress" style="width: 0%"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px;" id="month3Text">0/30 days</p>
+                    </div>
+                    <div class="week-card">
+                        <h4>Month 4: Portfolio & Jobs</h4>
+                        <div class="week-progress">
+                            <div class="week-progress-fill" id="month4Progress" style="width: 0%"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 12px;" id="month4Text">0/30 days</p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="resetProgress()">🔄 Reset All Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for days
+        const dayData = {
+            1: {
+                title: "Day 1: Environment Setup",
+                goal: "Set up complete development environment and create first Spring Boot project",
+                learning: [
+                    { text: "Install Java JDK 17/21", time: "15min" },
+                    { text: "Install IntelliJ IDEA Community", time: "15min" },
+                    { text: "Install Maven and verify", time: "10min" },
+                    { text: "Install Git and configure", time: "15min" },
+                    { text: "Create GitHub account", time: "10min" }
+                ],
+                coding: [
+                    { text: "Create first Spring Boot project from start.spring.io", time: "20min" },
+                    { text: "Open project in IntelliJ", time: "10min" },
+                    { text: "Run application successfully", time: "10min" },
+                    { text: "Explore project structure", time: "15min" }
+                ],
+                testing: [
+                    { text: "Verify Tomcat started on port 8080", time: "5min" },
+                    { text: "Create Git repository", time: "10min" },
+                    { text: "Make first commit and push", time: "10min" }
+                ]
+            },
+            2: {
+                title: "Day 2: First REST API",
+                goal: "Create and test your first API endpoints",
+                learning: [
+                    { text: "Watch Spring Boot basics tutorial (30min)", time: "30min" },
+                    { text: "Learn about @RestController annotation", time: "15min" },
+                    { text: "Understand @GetMapping", time: "15min" }
+                ],
+                coding: [
+                    { text: "Create HelloController class", time: "20min" },
+                    { text: "Implement GET / endpoint", time: "15min" },
+                    { text: "Implement GET /about endpoint", time: "10min" },
+                    { text: "Add @PathVariable endpoint", time: "15min" }
+                ],
+                testing: [
+                    { text: "Test endpoints in browser", time: "10min" },
+                    { text: "Test endpoints in Postman", time: "10min" },
+                    { text: "Git commit and push", time: "5min" }
+                ]
+            },
+            // Add more days as needed
+        };
+
+        // Week data
+        const weekData = [
+            {
+                week: 1,
+                title: "Week 1: Setup & Spring Boot Basics",
+                description: "Set up environment, create first REST APIs, learn CRUD operations",
+                days: "Days 1-7"
+            },
+            {
+                week: 2,
+                title: "Week 2: Database Integration",
+                description: "Connect to PostgreSQL, learn JPA/Hibernate, implement relationships",
+                days: "Days 8-14"
+            },
+            {
+                week: 3,
+                title: "Week 3: Security & Authentication",
+                description: "Implement JWT authentication, role-based authorization",
+                days: "Days 15-21"
+            },
+            {
+                week: 4,
+                title: "Week 4: Complete Backend Project",
+                description: "Build first portfolio project with all features learned",
+                days: "Days 22-28"
+            }
+        ];
+
+        // Initialize
+        let currentDay = 1;
+        let completedDays = new Set();
+        let taskStates = {};
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('learningProgress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                completedDays = new Set(data.completedDays || []);
+                taskStates = data.taskStates || {};
+                currentDay = data.currentDay || 1;
+            }
+            updateProgress();
+        }
+
+        // Save progress
+        function saveProgress() {
+            const data = {
+                completedDays: Array.from(completedDays),
+                taskStates: taskStates,
+                currentDay: currentDay
+            };
+            localStorage.setItem('learningProgress', JSON.stringify(data));
+        }
+
+        // Show tab
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content > div').forEach(d => d.classList.add('hidden'));
+            
+            event.target.classList.add('active');
+            
+            if (tab === 'today') {
+                document.getElementById('todayTab').classList.remove('hidden');
+            } else if (tab === 'week') {
+                document.getElementById('weekTab').classList.remove('hidden');
+                renderWeekCards();
+            } else if (tab === 'progress') {
+                document.getElementById('progressTab').classList.remove('hidden');
+                updateProgressStats();
+            }
+        }
+
+        // Populate day selector
+        function populateDaySelector() {
+            const select = document.getElementById('daySelect');
+            select.innerHTML = '';
+            for (let i = 1; i <= 30; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Day ${i}`;
+                if (i === currentDay) option.selected = true;
+                select.appendChild(option);
+            }
+        }
+
+        // Update day display
+        function updateDay() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const day = parseInt(document.getElementById('daySelect').value);
+            currentDay = (month - 1) * 30 + day;
+            
+            const data = dayData[day] || dayData[1];
+            
+            document.getElementById('currentDay').textContent = `Day ${currentDay} of 120`;
+            document.getElementById('dayTitle').textContent = data.title;
+            document.getElementById('dayGoal').textContent = data.goal;
+            
+            renderTasks('learningTasks', data.learning, 'learning');
+            renderTasks('codingTasks', data.coding, 'coding');
+            renderTasks('testingTasks', data.testing, 'testing');
+            
+            updateProgress();
+        }
+
+        // Render tasks
+        function renderTasks(containerId, tasks, category) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            tasks.forEach((task, index) => {
+                const taskKey = `${currentDay}-${category}-${index}`;
+                const isCompleted = taskStates[taskKey] || false;
+                
+                const div = document.createElement('div');
+                div.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                div.onclick = () => toggleTask(taskKey, div);
+                
+                div.innerHTML = `
+                    <div class="checkbox"></div>
+                    <div class="task-text">${task.text}</div>
+                    <span class="time-badge">${task.time}</span>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Toggle task
+        function toggleTask(taskKey, element) {
+            taskStates[taskKey] = !taskStates[taskKey];
+            element.classList.toggle('completed');
+            saveProgress();
+            updateProgress();
+        }
+
+        // Complete day
+        function completeDay() {
+            if (confirm(`Mark Day ${currentDay} as complete?`)) {
+                completedDays.add(currentDay);
+                
+                const reflection = document.getElementById('reflection').value;
+                if (reflection) {
+                    localStorage.setItem(`reflection-${currentDay}`, reflection);
+                }
+                
+                if (currentDay < 120) {
+                    currentDay++;
+                    document.getElementById('daySelect').value = ((currentDay - 1) % 30) + 1;
+                    document.getElementById('monthSelect').value = Math.ceil(currentDay / 30);
+                }
+                
+                saveProgress();
+                updateDay();
+                
+                alert('🎉 Great job! Day completed!');
+            }
+        }
+
+        // Update progress
+        function updateProgress() {
+            const progress = (completedDays.size / 120) * 100;
+            document.getElementById('overallProgress').style.width = progress + '%';
+            
+            // Count completed tasks for current day
+            const currentTasks = Object.keys(taskStates).filter(k => 
+                k.startsWith(`${currentDay}-`) && taskStates[k]
+            ).length;
+        }
+
+        // Update progress stats
+        function updateProgressStats() {
+            document.getElementById('daysCompleted').textContent = completedDays.size;
+            document.getElementById('daysRemaining').textContent = 120 - completedDays.size;
+            
+            const totalTasks = Object.values(taskStates).filter(v => v).length;
+            document.getElementById('tasksCompleted').textContent = totalTasks;
+            
+            // Calculate streak
+            let streak = 0;
+            for (let i = currentDay; i >= 1; i--) {
+                if (completedDays.has(i)) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            document.getElementById('currentStreak').textContent = streak;
+            
+            // Month progress
+            [1, 2, 3, 4].forEach(month => {
+                const monthDays = Array.from(completedDays).filter(d => 
+                    d > (month - 1) * 30 && d <= month * 30
+                ).length;
+                const percentage = (monthDays / 30) * 100;
+                document.getElementById(`month${month}Progress`).style.width = percentage + '%';
+                document.getElementById(`month${month}Text`).textContent = `${monthDays}/30 days`;
+            });
+        }
+
+        // Render week cards
+        function renderWeekCards() {
+            const container = document.getElementById('weekCards');
+            container.innerHTML = '';
+            
+            weekData.forEach(week => {
+                const div = document.createElement('div');
+                div.className = 'week-card';
+                div.innerHTML = `
+                    <h4>${week.title}</h4>
+                    <p>${week.description}</p>
+                    <p style="margin-top: 8px; font-size: 12px; color: #667eea;">${week.days}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                localStorage.clear();
+                completedDays = new Set();
+                taskStates = {};
+                currentDay = 1;
+                saveProgress();
+                updateDay();
+                alert('Progress reset successfully!');
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            populateDaySelector();
+            loadProgress();
+            updateDay();
+        };
+    </script>
+</body>
+</html>
